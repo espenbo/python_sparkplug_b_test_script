@@ -1,0 +1,4 @@
+paho-mqtt>=1.6.1
+psutil>=5.9.0
+protobuf>=3.20.0
+
