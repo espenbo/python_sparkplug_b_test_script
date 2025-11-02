@@ -1,0 +1,23 @@
+[Unit]
+Description=Sparkplug B System Monitor
+After=network.target
+
+[Service]
+ExecStart=/home/caesar/github/python_sparkplug_b_test_script/send_thinkfan_sparkplug/.venv/bin/python /home/caesar/github/python_sparkplug_b_test_script/send_thinkfan_sparkplug/send_thinkfan_sparkplug.py
+WorkingDirectory=/home/caesar/github/python_sparkplug_b_test_script/send_thinkfan_sparkplug
+Restart=on-failure
+User=caesar
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
+
+# Place file
+# /etc/systemd/system/sparkplug_monitor.service
+# sudo chmod 644 /etc/systemd/system/sparkplug_monitor.service
+# -rw-r--r-- 1 root root    0 Nov  1 00:17 sparkplug_monitor.service
+# Reload systemd og aktiver tjenesten
+# sudo systemctl daemon-reexec
+# sudo systemctl daemon-reload
+# sudo systemctl enable sparkplug_monitor.service
+# sudo systemctl start sparkplug_monitor.service

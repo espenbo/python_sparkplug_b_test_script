@@ -1,12 +1,15 @@
 # send_thinkfan_sparkplug
 
-Publishes system data (temperature, CPU, RAM, disk, fan status) as Sparkplug B messages to HiveMQ Cloud via MQTT.
+Publishes live system metrics (CPU, memory, temperature, disk, fan, network) as **Sparkplug B** messages over **MQTT**. Designed for **HiveMQ Cloud** and **Ignition MQTT Engine**.
+
 
 ## Features
 
-- Sends an NBIRTH message upon connection with all metrics (including online and node)
-- Sends an NDATA message every 60 seconds
-- Supports DCMD (`boolean_command`) for toggling actions
+- Sends **NBIRTH** on connection (node-level metadata)
+- Sends **DBIRTH** with full metric set (for alias/tag creation)
+- Sends **DDATA** updates every 60 seconds (deltas only)
+- Handles **DCMD** (`boolean_command`) from SCADA
+- Fully compliant with **Sparkplug B v1.0**
 
 ## Prerequisites
 
@@ -39,16 +42,41 @@ pip install -r requirements.txt
 python send_thinkfan_sparkplug.py
 ```
 
-## MQTT-oppsett
+## Environment Setup (.env)
 
-- Broker: `broker.hivemq.com`
-- Port: `8883` (TLS)
-- Username/Password: Set directly in the script
-- Format: Sparkplug B v1.0
+Create a .env file in the root directory:
+BROKER=your-mqtt-broker-url
+PORT=8883
+USERNAME=your-hivemq-username
+PASSWORD=your-hivemq-password
+GROUP_ID=your_sparkplug_group
+DEVICE_ID=system_monitor
+COMMAND_FILE=command_flag.txt
 
-## MQTT Topics
+Run on Startup (systemd)
 
-- NBIRTH: `spBv1.0/thinkfan/NBIRTH/<hostname>`
-- NDATA: `spBv1.0/thinkfan/NDATA/<hostname>`
-- DCMD: `spBv1.0/thinkfan/DCMD/<hostname>`
+You can run the script automatically at boot using systemd.
 
+1. Create a service file
+# /etc/systemd/system/sparkplug_monitor.service
+[Unit]
+Description=Sparkplug System Monitor
+After=network.target
+
+[Service]
+ExecStart=/home/username/path/to/.venv/bin/python /home/username/path/to/send_thinkfan_sparkplug_V5.py
+WorkingDirectory=/home/username/path/to/
+User=username
+EnvironmentFile=/home/username/path/to/.env
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+2. Enable and start the service
+sudo systemctl daemon-reload
+sudo systemctl enable sparkplug_monitor.service
+sudo systemctl start sparkplug_monitor.service
+
+To check the status:
+sudo systemctl status sparkplug_monitor.service
